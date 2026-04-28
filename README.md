@@ -97,11 +97,11 @@ The methodology in this course is a starting point, not a finished product. Thre
 
 Books on the O'Reilly platform that pair well with this course. The first four extend the technical methods you build here. The last two extend the operational context for putting this into production.
 
-- **Think Bayes, 2nd Edition** by Allen B. Downey. The gentlest path into the Bayesian reasoning you used in Hour 2. Read this if the prior and posterior intuition still feels fuzzy.
-- **Python for Data Analysis, 3rd Edition** by Wes McKinney. The canonical reference for working with telemetry data at scale once your event volume outgrows the patterns in this course.
-- **Designing Machine Learning Systems** by Chip Huyen. System-level thinking about ML in production. The complementary lens to what we built: where this course quantifies risk, that book maps the surface area where risk lives.
-- **Reliable Machine Learning** by Cathy Chen et al. Applies SRE discipline to ML systems. Pairs naturally with the operational health signal from Hour 1.
-- **Practical MLOps** by Noah Gift and Alfredo Deza. The CI/CD and deployment context. Useful when you start wiring the methodology from this course into your own pipelines.
+- **[Think Bayes, 2nd Edition](https://learning.oreilly.com/library/view/think-bayes-2nd/9781492089452/)** by Allen B. Downey. The gentlest path into the Bayesian reasoning you used in Hour 2. Read this if the prior and posterior intuition still feels fuzzy.
+- **[Python for Data Analysis, 3rd Edition](https://learning.oreilly.com/library/view/python-for-data/9781098104023/)** by Wes McKinney. The canonical reference for working with telemetry data at scale once your event volume outgrows the patterns in this course.
+- **[Designing Machine Learning Systems](https://learning.oreilly.com/library/view/designing-machine-learning/9781098107956/)** by Chip Huyen. System-level thinking about ML in production. The complementary lens to what we built: where this course quantifies risk, that book maps the surface area where risk lives.
+- **[Reliable Machine Learning](https://learning.oreilly.com/library/view/reliable-machine-learning/9781098106218/)** by Cathy Chen et al. Applies SRE discipline to ML systems. Pairs naturally with the operational health signal from Hour 1.
+- **[Practical MLOps](https://learning.oreilly.com/library/view/practical-mlops/9781098103002/)** by Noah Gift and Alfredo Deza. The CI/CD and deployment context. Useful when you start wiring the methodology from this course into your own pipelines.
 
 ## Stay connected
 
