@@ -34,7 +34,7 @@ The notebooks are designed to run in order. Notebook 1 emits telemetry events th
 
 ---
 
-## Setup — Local
+## Setup: Local
 
 If you want to run the notebooks on your own machine:
 
@@ -58,7 +58,7 @@ jupyter notebook notebooks/01_telemetry.ipynb
 
 ---
 
-## Setup — Colab (no install required)
+## Setup: Colab (no install required)
 
 Click any of the **Open in Colab** badges above. Colab handles Python, dependencies, and Jupyter for you. The first cell of each notebook installs the few packages Colab does not have by default. Notebooks 2 and 3 read files written by earlier notebooks; on Colab you will need to either run all three notebooks in the same session or re-upload the intermediate files when you switch.
 
@@ -74,9 +74,9 @@ quantifying-ai-risk/
 ├── setup_check.py                Environment verification script
 ├── .gitignore                    Python and Jupyter conventions
 ├── notebooks/
-│   ├── 01_telemetry.ipynb        Hour 1 — instrumenting a model
-│   ├── 02_bayesian_scoring.ipynb Hour 2 — per-signal posteriors
-│   └── 03_monte_carlo.ipynb      Hour 3 — financial risk simulation
+│   ├── 01_telemetry.ipynb        Hour 1, instrumenting a model
+│   ├── 02_bayesian_scoring.ipynb Hour 2, per-signal posteriors
+│   └── 03_monte_carlo.ipynb      Hour 3, financial risk simulation
 └── data/
     └── sample_telemetry/         Sample events for Notebook 1
 ```
@@ -93,11 +93,21 @@ The methodology in this course is a starting point, not a finished product. Thre
 
 ---
 
+## Recommended reading
+
+Books on the O'Reilly platform that pair well with this course. The first four extend the technical methods you build here. The last two extend the operational context for putting this into production.
+
+- **Think Bayes, 2nd Edition** by Allen B. Downey. The gentlest path into the Bayesian reasoning you used in Hour 2. Read this if the prior and posterior intuition still feels fuzzy.
+- **Python for Data Analysis, 3rd Edition** by Wes McKinney. The canonical reference for working with telemetry data at scale once your event volume outgrows the patterns in this course.
+- **Designing Machine Learning Systems** by Chip Huyen. System-level thinking about ML in production. The complementary lens to what we built: where this course quantifies risk, that book maps the surface area where risk lives.
+- **Reliable Machine Learning** by Cathy Chen et al. Applies SRE discipline to ML systems. Pairs naturally with the operational health signal from Hour 1.
+- **Practical MLOps** by Noah Gift and Alfredo Deza. The CI/CD and deployment context. Useful when you start wiring the methodology from this course into your own pipelines.
+
 ## Stay connected
 
-**Newsletter:** A.I.N.S.T.E.I.N. on Substack — long-form essays on AI governance, telemetry, and quantitative trust scoring.
+**Newsletter:** A.I.N.S.T.E.I.N. on Substack. Long-form essays on AI governance, telemetry, and quantitative trust scoring.
 
-**LinkedIn:** [linkedin.com/in/suneetamodekurty](https://www.linkedin.com/in/suneetamodekurty) — send a connection request and mention this course.
+**LinkedIn:** [linkedin.com/in/suneetamodekurty](https://www.linkedin.com/in/suneetamodekurty). Send a connection request and mention this course.
 
 **Practice:** The methodology taught in this course is operationalized as METRIS, an AI Trust Posture Management platform built by SANJEEVANI AI. [sanjeevaniai.com](https://sanjeevaniai.com)
 
@@ -105,7 +115,7 @@ The methodology in this course is a starting point, not a finished product. Thre
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
 You are free to use this code in your own work, including commercial projects, with attribution. If you build something interesting on top of it, I would love to hear about it.
 
