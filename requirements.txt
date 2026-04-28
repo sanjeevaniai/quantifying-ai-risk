@@ -1,0 +1,27 @@
+# Quantifying AI Risk — Python dependencies
+# Tested on Python 3.10, 3.11, 3.12
+
+# Core scientific stack
+numpy>=1.26,<2.2
+pandas>=2.1,<2.3
+scipy>=1.11,<1.15
+
+# Visualization
+matplotlib>=3.8,<3.10
+seaborn>=0.13,<0.14
+
+# Bayesian inference (Notebook 2)
+# scipy.stats handles the Beta distributions natively, so no PyMC required for the core path
+# Optional richer Bayesian work can use these (commented out — uncomment if extending):
+# pymc>=5.10,<5.20
+# arviz>=0.17,<0.21
+
+# Notebook 1 sample model
+scikit-learn>=1.3,<1.6
+
+# Jupyter — the runtime
+jupyter>=1.0,<2.0
+ipykernel>=6.27,<7.0
+
+# Pretty progress bars in long Monte Carlo loops (Notebook 3)
+tqdm>=4.66,<5.0
