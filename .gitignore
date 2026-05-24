@@ -36,3 +36,6 @@ data/*.jsonl
 data/*.json
 data/*.pkl
 !data/.gitkeep
+
+# Generated reports
+ai_risk_report_*.pdf

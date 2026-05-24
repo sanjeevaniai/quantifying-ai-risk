@@ -29,6 +29,7 @@ REQUIRED_PACKAGES = [
     "sklearn",      # scikit-learn imports as sklearn
     "jupyter",
     "tqdm",
+    "reportlab",    # PDF report generation in Notebook 3
 ]
 
 # Some packages have a different import name than their pip name.

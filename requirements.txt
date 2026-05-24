@@ -7,8 +7,13 @@ pandas>=2.1,<2.3
 scipy>=1.11,<1.15
 
 # Visualization
+# Visualization
 matplotlib>=3.8,<3.10
 seaborn>=0.13,<0.14
+
+# PDF report generation (Notebook 3)
+reportlab>=4.0,<5.0
+
 
 # Bayesian inference (Notebook 2)
 # scipy.stats handles the Beta distributions natively, so no PyMC required for the core path
