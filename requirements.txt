@@ -7,7 +7,6 @@ pandas>=2.1,<2.3
 scipy>=1.11,<1.15
 
 # Visualization
-# Visualization
 matplotlib>=3.8,<3.10
 seaborn>=0.13,<0.14
 
