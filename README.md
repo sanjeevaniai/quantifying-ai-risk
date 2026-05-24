@@ -2,7 +2,7 @@
 
 **Building a Telemetry-Driven Risk Scoring Engine for Production AI**
 
-Companion repository for the O'Reilly Live Training Course taught by [Suneeta Modekurty](https://www.linkedin.com/in/suneetamodekurty).
+Companion repository for the O'Reilly Live Training Course dated June 1st 2026, taught by [Suneeta Modekurty](https://www.linkedin.com/in/suneetamodekurty).
 
 ---
 
