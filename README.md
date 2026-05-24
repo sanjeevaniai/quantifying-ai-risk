@@ -20,6 +20,23 @@ By the end, you have a working measurement-and-inference pipeline you can run ag
 
 ---
 
+## What you will walk away with
+
+When the third notebook finishes, the pipeline writes a one-page PDF report to your local folder. The report shows:
+
+- The expected monthly loss exposure as the headline number
+- 95% and 99% Value at Risk, plus Tail Conditional Expectation
+- The current state of all five governance pillars with posterior scores and confidence intervals
+- The Monte Carlo loss distribution showing simulated outcomes
+- The top three risk drivers ranked by contribution to the worst 5% of months
+- A regulatory mapping to the specific EU AI Act articles, NIST AI RMF measures, and ISO 42001 clauses your pipeline addresses
+
+This is the document you would hand a CFO, attach to a board memo, or present to a regulator. The methodology produces an artifact, not just a number.
+
+![Sample AI Risk Report](docs/sample_report.png)
+
+---
+
 ## Notebooks
 
 Each notebook can run on either your local machine or in Google Colab. Click the Colab badge to open in your browser with no setup required.
@@ -77,6 +94,11 @@ quantifying-ai-risk/
 │   ├── 01_telemetry.ipynb        Hour 1, instrumenting a model
 │   ├── 02_bayesian_scoring.ipynb Hour 2, per-signal posteriors
 │   └── 03_monte_carlo.ipynb      Hour 3, financial risk simulation
+├── utils/
+│   ├── __init__.py
+│   └── report_generator.py       One-page PDF report builder
+├── docs/
+│   └── sample_report.png         Preview of the generated report
 └── data/
     └── sample_telemetry/         Sample events for Notebook 1
 ```
