@@ -12,9 +12,9 @@ Over three hours, you will build a complete pipeline that takes a production AI 
 
 **Hour 1: Telemetry.** Instrument a production model so that it emits six governance signals: decision, confidence, latency, drift, fairness, and operational health. Each signal is decision-bound, timestamped, and stored in a tamper-evident event sink.
 
-**Hour 2: Bayesian inference.** Turn the telemetry stream into per-pillar posterior distributions, each with its own credible interval. Skeptical priors. Severity-weighted likelihoods. Per-pillar updates that preserve the evidence each regulatory framework actually asks for.
+**Hour 2: Bayesian inference.** Turn the telemetry stream into a posterior distribution for each of the six signals, each with its own credible interval. Skeptical priors. Severity-weighted likelihoods. Per-signal updates that preserve the evidence each regulatory framework actually asks for.
 
-**Hour 3: Monte Carlo simulation.** Translate the posteriors into a financial risk distribution. Compute expected loss, 95% Value at Risk, and 95% Tail Conditional Expectation. Run sensitivity analysis to find which pillars drive catastrophic tail risk.
+**Hour 3: Monte Carlo simulation.** Translate the posteriors into a financial risk distribution. Compute expected loss, 95% Value at Risk, and 95% Tail Conditional Expectation. Run sensitivity analysis to find which signals drive catastrophic tail risk.
 
 By the end, you have a working measurement-and-inference pipeline you can run against your own systems.
 
@@ -26,7 +26,7 @@ When the third notebook finishes, the pipeline writes a one-page PDF report to y
 
 - The expected monthly loss exposure as the headline number
 - 95% and 99% Value at Risk, plus Tail Conditional Expectation
-- The current state of all five governance pillars with posterior scores and confidence intervals
+- The current state of all six governance signals with posterior scores and credible intervals
 - The Monte Carlo loss distribution showing simulated outcomes
 - The top three risk drivers ranked by contribution to the worst 5% of months
 - A regulatory mapping to the specific EU AI Act articles, NIST AI RMF measures, and ISO 42001 clauses your pipeline addresses
@@ -47,7 +47,7 @@ Each notebook can run on your local machine or in Google Colab. Click the Colab 
 | Hour 2 | [`notebooks/02_bayesian_scoring.ipynb`](notebooks/02_bayesian_scoring.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sanjeevaniai/quantifying-ai-risk/blob/main/notebooks/02_bayesian_scoring.ipynb) |
 | Hour 3 | [`notebooks/03_monte_carlo.ipynb`](notebooks/03_monte_carlo.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sanjeevaniai/quantifying-ai-risk/blob/main/notebooks/03_monte_carlo.ipynb) |
 
-The notebooks are designed to run in order. Notebook 1 emits telemetry events that Notebook 2 reads. Notebook 2 produces pillar posterior distributions that Notebook 3 samples from. Notebook 3 generates the final PDF report.
+The notebooks are designed to run in order. Notebook 1 emits telemetry events that Notebook 2 reads. Notebook 2 produces a posterior distribution for each of the six signals that Notebook 3 samples from. Notebook 3 generates the final PDF report.
 
 ---
 
@@ -74,11 +74,15 @@ jupyter notebook notebooks/01_telemetry.ipynb
 
 `setup_check.py` verifies your Python version and confirms that every dependency imports cleanly. Run it before the course starts so that any environment issues are resolved before Hour 1.
 
+If a check fails, see **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** for step-by-step fixes covering local setup, Colab, and common notebook runtime errors.
+
 ---
 
 ## Setup: Colab (no install required)
 
-Click any of the **Open in Colab** badges above. Colab handles Python, dependencies, and Jupyter for you. The first cell of each notebook installs the few packages that Colab does not have by default. Notebooks 2 and 3 read files written by earlier notebooks, so on Colab you will need to either run all three notebooks in the same session or re-upload the intermediate files between sessions.
+Click any of the **Open in Colab** badges above. Colab handles Python, dependencies, and Jupyter for you. Colab comes with most of the course packages preinstalled; if a notebook reports a missing package, run `!pip install -r requirements.txt` in a cell at the top. Notebooks 2 and 3 read files written by earlier notebooks, so on Colab you will need to either run all three notebooks in the same session or re-upload the intermediate files between sessions.
+
+Hitting an error? See **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** for fixes.
 
 ---
 
@@ -93,7 +97,7 @@ quantifying-ai-risk/
 ├── .gitignore                      Python and Jupyter conventions
 ├── notebooks/                      The three course notebooks
 │   ├── 01_telemetry.ipynb          Hour 1, instrumenting a model
-│   ├── 02_bayesian_scoring.ipynb   Hour 2, per-pillar posteriors
+│   ├── 02_bayesian_scoring.ipynb   Hour 2, per-signal posteriors
 │   └── 03_monte_carlo.ipynb        Hour 3, financial risk simulation
 ├── utils/                          Helper modules
 │   ├── __init__.py
@@ -112,7 +116,7 @@ quantifying-ai-risk/
 The methodology in this course is a starting point, not a finished product. Three suggested next steps:
 
 1. **Run the three notebooks against one of your own systems.** Even a small one. Even with synthetic loss numbers at first. The exercise of going from zero to a working pipeline on real telemetry is what locks the methodology in.
-2. **Extend the schema.** The six signals captured here are the minimum evidentiary foundation. Your industry may require additional signals. Add them using the same per-pillar posterior pattern.
+2. **Extend the schema.** The six signals captured here are the minimum evidentiary foundation. Your industry may require additional signals. Add them using the same per-signal posterior pattern.
 3. **Calibrate the loss functions.** The loss functions in Notebook 3 are deliberately simple. Production calibration uses your own incident history and your own legal exposure assessments. The shape of the model is right. The numbers are illustrative.
 
 ---
