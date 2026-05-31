@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import io
 import os
+import re
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -247,6 +248,13 @@ def _build_pdf(pdf_path: str, results: dict, histogram_path: str) -> None:
     y -= 0.18 * inch
     c.drawString(margin_x, y, "Telemetry-Driven Quantitative Risk Analysis")
 
+    # "Prepared for" line — clearly marks the subject as a fictional company
+    c.setFont("Helvetica-Oblique", 8)
+    c.setFillColor(INK_LIGHT_GREY)
+    y -= 0.16 * inch
+    client_name = results.get("client_name", "F-Corp (a fictional company)")
+    c.drawString(margin_x, y, f"Prepared for: {client_name}")
+
     # Metadata row on the right
     metadata_x = page_w - margin_x
     c.setFont("Helvetica", 8)
@@ -254,6 +262,8 @@ def _build_pdf(pdf_path: str, results: dict, histogram_path: str) -> None:
     generated_at = datetime.now().strftime("%B %d, %Y · %H:%M")
     c.drawRightString(metadata_x, page_h - 0.55 * inch, f"Generated: {generated_at}")
     model_id = results.get("model_id", "model_v1.0")
+    # Strip any trailing version suffix (e.g. "credit_risk_v3.2" -> "credit_risk")
+    model_id = re.sub(r"[_\-\s]*v?\d+(\.\d+)*$", "", model_id)
     reporting_period = results.get("reporting_period", "Current period")
     c.drawRightString(metadata_x, page_h - 0.70 * inch, f"Model: {model_id}")
     c.drawRightString(metadata_x, page_h - 0.85 * inch, f"Period: {reporting_period}")
@@ -442,16 +452,16 @@ def _build_pdf(pdf_path: str, results: dict, histogram_path: str) -> None:
     # ---------------- Footer ----------------
     footer_y = 0.45 * inch
 
-    # Divider
+    # Divider — raised to make room for the framework glossary below the mapping
     c.setStrokeColor(RULE_GREY)
     c.setLineWidth(0.5)
-    c.line(margin_x, footer_y + 0.40 * inch,
-           page_w - margin_x, footer_y + 0.40 * inch)
+    c.line(margin_x, footer_y + 1.05 * inch,
+           page_w - margin_x, footer_y + 1.05 * inch)
 
     # Regulatory mapping label
     c.setFont("Helvetica-Bold", 7)
     c.setFillColor(INK_GREY)
-    c.drawString(margin_x, footer_y + 0.25 * inch, "REGULATORY MAPPING")
+    c.drawString(margin_x, footer_y + 0.90 * inch, "REGULATORY MAPPING")
 
     # Regulatory mapping content
     c.setFont("Helvetica", 7)
@@ -459,7 +469,30 @@ def _build_pdf(pdf_path: str, results: dict, histogram_path: str) -> None:
     reg_text = ("EU AI Act Articles 10, 13, 17  ·  "
                 "NIST AI RMF MEASURE 2.4, 2.5, 2.7, 2.11, 4.2  ·  "
                 "ISO 42001 Clauses 8.1, 8.3, 8.4, 9.1")
-    c.drawString(margin_x, footer_y + 0.10 * inch, reg_text)
+    c.drawString(margin_x, footer_y + 0.75 * inch, reg_text)
+
+    # Framework glossary — one concise sentence each, footnote-style
+    framework_glossary = [
+        ("EU AI Act", "the EU's binding law for AI; classifies systems by risk "
+         "level and imposes legal duties, with fines up to €35M or 7% of global "
+         "annual turnover for the most serious violations."),
+        ("NIST AI RMF", "the U.S. National Institute of Standards and Technology's "
+         "voluntary AI Risk Management Framework, organized around the functions "
+         "Govern, Map, Measure, and Manage."),
+        ("ISO/IEC 42001", "the international management-system standard for AI "
+         "against which an organization can be independently certified by an "
+         "accredited body."),
+    ]
+    gloss_y = footer_y + 0.60 * inch
+    for name, desc in framework_glossary:
+        c.setFont("Helvetica-Bold", 6.5)
+        c.setFillColor(INK_GREY)
+        c.drawString(margin_x, gloss_y, name + ":")
+        name_width = c.stringWidth(name + ": ", "Helvetica-Bold", 6.5)
+        c.setFont("Helvetica", 6.5)
+        c.setFillColor(INK_LIGHT_GREY)
+        c.drawString(margin_x + name_width, gloss_y, desc)
+        gloss_y -= 0.14 * inch
 
     # Attribution on its own line at the very bottom
     c.setFont("Helvetica-Oblique", 7)
