@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "measure_id": "latency_tail_50",
+  "construct": "tail latency within operating limits",
+  "estimand": "theta = P(a 50-decision window meets the tail-latency criterion)",
+  "evidence_type": "system_behavior",
+  "observable_fields": ["latency_ms"],
+  "window": {"length": 50, "unit": "decisions"},
+  "measurement_function": "share of calls at or under max_latency_ms",
+  "parameters": {"max_latency_ms": 260},
+  "operator": ">=",
+  "threshold": 0.95,
+  "theta_threshold": 0.75,
+  "prior": {"alpha": 2.0, "beta": 8.0, "mode": "illustrative"},
+  "sufficiency": {"min_observations": 8, "max_age_days": 30},
+  "owner": "ml_lead",
+  "limitations": [
+    "a 50-decision window is a coarse estimate of a tail quantile"
+  ]
+}
