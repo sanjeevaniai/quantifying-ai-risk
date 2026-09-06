@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python setup_check.py
+      - run: pytest
+
+  notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: |
+          pip install -r requirements.txt
+          pip install nbclient nbformat
+
+      - name: Notebooks are committed without outputs
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          dirty = [str(p) for p in sorted(Path("notebooks").glob("*.ipynb"))
+                   if any(c.get("outputs") or c.get("execution_count") is not None
+                          for c in json.loads(p.read_text())["cells"])]
+          if dirty:
+              sys.exit(f"notebooks carry committed outputs: {dirty}")
+          PY
+
+      - name: Run the notebooks in order
+        run: |
+          python - <<'PY'
+          import nbformat
+          from nbclient import NotebookClient
+          from pathlib import Path
+          for name in ("01_telemetry", "02_bayesian_scoring", "03_monte_carlo"):
+              path = Path("notebooks") / f"{name}.ipynb"
+              nb = nbformat.read(path, as_version=4)
+              NotebookClient(nb, timeout=1800, kernel_name="python3",
+                             resources={"metadata": {"path": str(Path.cwd())}}).execute()
+              print(f"ok {path}")
+          PY
+
+      - name: Generated documents validate
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0, "src")
+          from qair.validation import validate_document
+          for doc, schema in (("posterior_state", "posterior_state"),
+                              ("control_state", "control_state"),
+                              ("decision_contracts", "decision_contract"),
+                              ("risk_report", "risk_report")):
+              validate_document(json.loads(Path(f"data/{doc}.json").read_text()), schema)
+              print(f"ok data/{doc}.json")
+          n = 0
+          with open("data/telemetry.jsonl") as f:
+              for line in f:
+                  if line.strip():
+                      validate_document(json.loads(line), "telemetry_event")
+                      n += 1
+          print(f"ok data/telemetry.jsonl ({n} records)")
+          PY
