@@ -1,47 +1,108 @@
-# CI/CD Integration Blueprint
+# Where the decision contract fits in a pipeline
 
-Where governance scoring sits in a pipeline. Three places, three different jobs. Short on purpose.
+Three jobs with different constraints, all consuming `data/decision_contracts.json`
+and the exit code derived from it.
 
-## The integration contract
+```
+band                   decision   gate
+STRONG                 APPROVE    pass
+ADEQUATE               REVIEW     pass, flagged
+WEAK                   BLOCK      fail
+INSUFFICIENT_EVIDENCE  HOLD       fail
+```
 
-Everything below consumes one file and one number:
+`HOLD` blocks. A measure that cannot be reported should not pass a gate quietly;
+in the `missing_documentation` scenario the loss figure improves while the gate
+fails.
 
-- **`scorecard.json`** — per pillar: posterior, credible interval, threshold, band, pass or fail. Written by the scoring job (Notebooks 2 and 3 produce the reference implementation at `notebooks/outputs/scorecard.json`).
-- **Exit code** — `0` if every pillar passes its threshold, `1` otherwise.
+## What each job can compute
 
-Governance scoring usually fails to reach a pipeline because nobody ever emitted a machine-readable result. The contract is the fix. What a pipeline does with the result is a policy decision, recorded where policy decisions are recorded — see "Where Thresholds Come From" in the course.
+The constraint is data, not speed. A measure needs a window of production traffic
+or it does not exist yet.
+
+| Measure | Pre-merge | Post-deploy | Scheduled |
+|---|---|---|---|
+| `performance_per_decision` | yes, on held-out data | yes | yes |
+| `data_quality_50` | yes, on held-out data | yes | yes |
+| `drift_distance_50` | no | yes | yes |
+| `fairness_parity_75` | no | yes | yes |
+| `security_authz_50` | no | yes | yes |
+| `control_execution` | register only | register only | yes, refreshed |
 
 ## 1. Pre-merge gate
 
-Runs on the pull request. Scores the candidate model against held-out data and blocks the merge if a pillar is below threshold.
+Runs on the pull request against held-out data, and blocks the merge on a failure.
+Fast and blocking.
 
-- **Character:** fast, blocking, cheap.
-- **Limit:** can only use pillars computable without production traffic — Performance and Data quality on held-out data, Security configuration checks, Process (are the required sign-offs present?). Drift and Fairness need production windows and do not belong here.
+It can only use measures computable without production traffic. Drift and fairness
+need a window of live decisions and do not belong here — a pre-merge gate that
+claims to check production fairness is checking something else.
+
+`score.py` is yours to write; this repository ships the library, not the job:
+
+```python
+import json
+import sys
+from pathlib import Path
+
+from qair.contracts import load_contracts
+from qair.decisions import build_decision_contracts, exit_code_from
+from qair.inference import estimate
+from qair.risk import load_scenario
+import measures
+
+PRE_MERGE = ("performance_per_decision", "data_quality_50")
+
+contracts = load_contracts()
+scenario = load_scenario()
+states = {
+    mid: estimate(c, measures.window_observations(c, holdout_records), reported_at)
+    for mid, c in contracts.items()
+    if mid in PRE_MERGE
+}
+doc = build_decision_contracts(states, {m: contracts[m] for m in states}, scenario,
+                               model_id, model_version, policy_version)
+Path("data/decision_contracts.json").write_text(json.dumps(doc, indent=2))
+sys.exit(exit_code_from(doc))
+```
 
 ```yaml
-# e.g. GitHub Actions
 - name: Governance gate
-  run: |
-    python score.py --mode pre-merge --candidate model/ --data holdout/
-    # score.py writes scorecard.json and exits 0/1; a non-zero exit fails the job
+  run: python score.py --candidate model/ --data holdout/
 - uses: actions/upload-artifact@v4
-  with: { name: scorecard, path: scorecard.json }
+  if: always()
+  with:
+    name: decision-contracts
+    path: data/decision_contracts.json
 ```
 
 ## 2. Post-deploy monitor
 
-Runs continuously on live telemetry. Watches for drift and degradation; alerts, and can trigger a rollback.
+Runs on live telemetry on a schedule. Non-blocking: a running system should not
+depend on a scoring job finishing.
 
-- **Character:** continuous, non-blocking. Nothing about a running system should hang on a scoring job.
-- **Wiring:** the scoring job reads a window from the event sink on a schedule (e.g. every 15 minutes), updates the windowed pillars, and pushes `scorecard.json` to the monitoring stack. Alert rules read the file — for example, alert when any pillar's band leaves STRONG, page when a pillar fails.
+It can compute every behavioural measure, because production traffic exists. It
+cannot refresh control evidence, which arrives from people on its own cadence, so
+`control_execution` here reflects whatever the register last said.
+
+Alert on `INSUFFICIENT_EVIDENCE` separately from a failing measure. They are
+different conditions: one means the system is outside tolerance, the other means
+you have stopped being able to tell.
 
 ## 3. Scheduled rescore
 
-Weekly or monthly, on the full window. Recomputes the windowed pillars, refreshes attestations, writes the scorecard.
+Weekly or monthly over the full window. Slow and thorough, and the run that
+produces the record an auditor asks for.
 
-- **Character:** slow, thorough. This is the run that produces your audit record.
-- **Wiring:** a cron job runs the full pipeline (the three notebooks are the reference), commits `scorecard.json` with a timestamp to an evidence store, and files the divergence report (attested versus measured) with the control owners.
+It is the only job that can refresh control evidence and recompute measures needing
+a large population. It writes all four documents to an evidence store with a
+timestamp, and files the divergences from `control_state.json` with the control
+owners.
 
-## Thresholds fire; people decide
+## Thresholds
 
-A threshold crossing produces an event; what fires — a blocked merge, a rollback, a retraining ticket — is set by a named person, recorded with the date, the reasoning, and the sign-off. The pipeline enforces the decision; it does not make it.
+A threshold crossing produces an event. What it should trigger — a blocked merge,
+a rollback, a retraining ticket — is decided in advance and recorded against the
+contract with the value, the date, the reasoning and the accountable role.
+
+The pipeline enforces that decision; it does not derive it.

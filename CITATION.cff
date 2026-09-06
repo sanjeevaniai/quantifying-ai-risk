@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+title: "Quantifying AI Risk: a telemetry-driven risk scoring engine for production AI"
+message: "If you use this software or the methodology, please cite it as below."
+type: software
+authors:
+  - family-names: Modekurty
+    given-names: Suneeta
+    affiliation: SANJEEVANI AI
+    website: "https://www.linkedin.com/in/smodekurty"
+repository-code: "https://github.com/sanjeevaniai/quantifying-ai-risk"
+url: "https://github.com/sanjeevaniai/quantifying-ai-risk"
+abstract: >
+  An educational reference implementation of a telemetry-driven governance
+  measurement pipeline for production AI systems: decision-bound governance
+  telemetry, measurement contracts that declare every reported quantity before it
+  is computed, a typed evidence model that refuses to let control evidence update a
+  system-behaviour posterior, per-measure Bayesian state estimation with credible
+  intervals and an INSUFFICIENT_EVIDENCE state, a Monte Carlo risk model that keeps
+  frequency and consequence separate, and machine-readable decision contracts a
+  CI/CD pipeline can gate on. Companion repository to an O'Reilly live training
+  course.
+keywords:
+  - AI governance
+  - AI risk
+  - telemetry
+  - observability
+  - Bayesian inference
+  - Monte Carlo simulation
+  - MLOps
+  - model risk management
+  - measurement
+license: MIT
+version: 2.0.0
+date-released: "2026-09-05"
