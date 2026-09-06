@@ -1,0 +1,8 @@
+# Tool configuration only. Install with `pip install -r requirements.txt`; there
+# is no build step.
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+pythonpath = [".", "src"]
+testpaths = ["tests"]
+addopts = "-q"
