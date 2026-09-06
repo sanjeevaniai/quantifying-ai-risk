@@ -1,31 +1,33 @@
 # Quantifying AI Risk — Python dependencies
-# Tested on Python 3.10, 3.11, 3.12
+# Tested on Python 3.10, 3.11 and 3.12.
+#
+#     pip install -r requirements.txt
+#     python setup_check.py
+#
+# There is no build step. The notebooks add the repository root and src/ to
+# sys.path; there is nothing to `pip install -e`.
 
 # Core scientific stack
-numpy>=1.26,<2.2
-pandas>=2.1,<2.3
-scipy>=1.11,<1.15
+numpy>=1.26,<3.0
+scipy>=1.11,<2.0
 
-# Visualization
-matplotlib>=3.8,<3.10
-seaborn>=0.13,<0.14
+# The sample model in Notebook 1. The pin is wide on purpose; tested on 1.7 and
+# 1.9. Tests read a committed fixture rather than regenerating, so they do not
+# depend on the version installed here.
+scikit-learn>=1.3,<2.0
 
-# PDF report generation (Notebook 3)
-reportlab>=4.0,<5.0
+# Plotting. The notebooks draw every distribution they compute: a notebook that
+# computes a loss distribution and never draws it has failed at the teaching.
+matplotlib>=3.8,<4.0
 
-
-# Bayesian inference (Notebook 2)
-# scipy.stats handles the Beta distributions natively, so no PyMC required for the core path
-# Optional richer Bayesian work can use these (commented out — uncomment if extending):
-# pymc>=5.10,<5.20
-# arviz>=0.17,<0.21
-
-# Notebook 1 sample model
-scikit-learn>=1.3,<1.6
+# Declared parameters and published schemas
+PyYAML>=6.0,<7.0
+jsonschema>=4.18,<5.0
+rfc3339-validator>=0.1.4        # lets jsonschema actually check "format": "date-time" 
 
 # Jupyter — the runtime
 jupyter>=1.0,<2.0
 ipykernel>=6.27,<7.0
 
-# Pretty progress bars in long Monte Carlo loops (Notebook 3)
-tqdm>=4.66,<5.0
+# Tests
+pytest>=7.4,<9.0

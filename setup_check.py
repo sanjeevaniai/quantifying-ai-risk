@@ -1,122 +1,126 @@
 #!/usr/bin/env python3
-"""
-setup_check.py
-
-Verifies the local environment is ready for the
-"Quantifying AI Risk" O'Reilly Live Training Course.
-
-Run from the repo root:
+"""Check that the environment can run the notebooks.
 
     python setup_check.py
 
-Exit code 0 means you are ready. Anything else means at least one check
-failed and the script will tell you which one.
+Exit code 0 means ready. It does not train a model or run a simulation.
 """
 
-import sys
-import importlib
-from importlib.metadata import version, PackageNotFoundError
+from __future__ import annotations
 
+import importlib
+import sys
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
 
 REQUIRED_PYTHON = (3, 10)
 
-REQUIRED_PACKAGES = [
-    "numpy",
-    "pandas",
-    "scipy",
-    "matplotlib",
-    "seaborn",
-    "sklearn",      # scikit-learn imports as sklearn
-    "jupyter",
-    "tqdm",
-    "reportlab",    # PDF report generation in Notebook 3
-]
-
-# Some packages have a different import name than their pip name.
-PIP_NAMES = {
+PACKAGES = {
+    "numpy": "numpy",
+    "scipy": "scipy",
     "sklearn": "scikit-learn",
+    "matplotlib": "matplotlib",
+    "yaml": "PyYAML",
+    "jsonschema": "jsonschema",
+    "ipykernel": "ipykernel",
 }
 
+COMMITTED_INPUTS = (
+    "risk_scenario.yaml",
+    "measures.py",
+    "data/control_evidence.json",
+    "data/reference_distribution.json",
+)
 
-def _check_python_version() -> bool:
-    actual = sys.version_info[:2]
-    ok = actual >= REQUIRED_PYTHON
-    required_str = f"{REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]}"
-    actual_str = f"{actual[0]}.{actual[1]}"
-    if ok:
-        print(f"  [OK]   Python {actual_str} (need >= {required_str})")
-    else:
-        print(f"  [FAIL] Python {actual_str} (need >= {required_str})")
-        print(f"         Upgrade Python before continuing.")
+
+def line(ok: bool, message: str, fix: str = "") -> bool:
+    print(f"  [{'OK' if ok else 'FAIL'}]   {message}")
+    if not ok and fix:
+        print(f"          {fix}")
     return ok
 
 
-def _check_package(name: str) -> bool:
-    pip_name = PIP_NAMES.get(name, name)
-    try:
-        importlib.import_module(name)
-    except ImportError:
-        print(f"  [FAIL] {pip_name} is not installed")
-        print(f"         Run: pip install {pip_name}")
-        return False
-
-    try:
-        installed_version = version(pip_name)
-        print(f"  [OK]   {pip_name} {installed_version}")
-    except PackageNotFoundError:
-        # Imported fine but version unknown — still acceptable
-        print(f"  [OK]   {pip_name} (version unknown)")
-    return True
+def check_python() -> bool:
+    actual = sys.version_info[:2]
+    return line(
+        actual >= REQUIRED_PYTHON,
+        f"Python {actual[0]}.{actual[1]} (need >= {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]})",
+        "Install a newer Python.",
+    )
 
 
-def _check_jupyter_kernel() -> bool:
-    """Verify ipykernel is installed so Jupyter can actually run notebooks."""
+def check_packages() -> bool:
+    results = []
+    for import_name, pip_name in PACKAGES.items():
+        try:
+            importlib.import_module(import_name)
+        except ImportError:
+            results.append(line(False, f"{pip_name} is not installed",
+                                f"pip install {pip_name}"))
+            continue
+        try:
+            results.append(line(True, f"{pip_name} {version(pip_name)}"))
+        except PackageNotFoundError:
+            results.append(line(True, f"{pip_name}"))
+    return all(results)
+
+
+def check_repository(root: Path) -> bool:
+    results = [line((root / rel).exists(), rel, "Missing tracked file; re-clone.")
+               for rel in COMMITTED_INPUTS]
+    contracts = sorted(p.stem for p in (root / "contracts").glob("*.json"))
+    results.append(line(bool(contracts), f"contracts/: {len(contracts)} measures "
+                                         f"({', '.join(contracts)})"))
+    schemas = list((root / "schemas").glob("*.schema.json"))
+    results.append(line(bool(schemas), f"schemas/: {len(schemas)} schemas"))
+    return all(results)
+
+
+def check_library(root: Path) -> bool:
+    for path in (str(root), str(root / "src")):
+        if path not in sys.path:
+            sys.path.insert(0, path)
     try:
-        importlib.import_module("ipykernel")
-        print(f"  [OK]   ipykernel is available")
-        return True
-    except ImportError:
-        print(f"  [FAIL] ipykernel is not installed")
-        print(f"         Run: pip install ipykernel")
-        return False
+        from qair.contracts import load_contracts
+        from qair.risk import load_scenario
+    except Exception as exc:  # noqa: BLE001
+        return line(False, f"qair import failed: {exc}", "Run from the repository root.")
+    try:
+        contracts = load_contracts(root / "contracts")
+        scenario = load_scenario(root / "risk_scenario.yaml")
+        scenario.check_covers(contracts)
+    except Exception as exc:  # noqa: BLE001
+        return line(False, f"contracts or scenario failed to load: {exc}")
+
+    ok = line(True, f"loaded {len(contracts)} contracts and the risk scenario")
+    ok &= line(True, f"dependence matrix validates ({len(scenario.dependence_order)}x"
+                     f"{len(scenario.dependence_order)})")
+    ok &= line(scenario.mode in ("illustrative", "calibrated"),
+               f"risk_scenario.yaml mode: {scenario.mode}")
+    return ok
 
 
 def main() -> int:
-    print("=" * 60)
-    print("  Quantifying AI Risk — environment check")
-    print("=" * 60)
-    print()
+    root = Path(__file__).resolve().parent
+    print("Quantifying AI Risk — environment check\n")
 
-    print("Python version:")
-    python_ok = _check_python_version()
-    print()
+    print("Python:")
+    python_ok = check_python()
+    print("\nPackages:")
+    packages_ok = check_packages()
+    print("\nRepository:")
+    repo_ok = check_repository(root)
+    print("\nLibrary:")
+    library_ok = check_library(root) if packages_ok and repo_ok else line(
+        False, "skipped, fix the failures above first")
 
-    print("Required packages:")
-    package_results = [_check_package(name) for name in REQUIRED_PACKAGES]
-    print()
-
-    print("Jupyter runtime:")
-    kernel_ok = _check_jupyter_kernel()
-    print()
-
-    all_ok = python_ok and all(package_results) and kernel_ok
-
-    print("=" * 60)
+    all_ok = python_ok and packages_ok and repo_ok and library_ok
     if all_ok:
-        print("  All checks passed. You are ready for Hour 1.")
-        print()
-        print("  Next step:")
-        print("      jupyter notebook notebooks/01_telemetry.ipynb")
-        print("=" * 60)
-        return 0
+        print("\nReady. Open notebooks/01_telemetry.ipynb.")
     else:
-        print("  Some checks failed. Fix the issues listed above")
-        print("  and re-run this script before the course starts.")
-        print()
-        print("  Quickest fix in most cases:")
-        print("      pip install -r requirements.txt")
-        print("=" * 60)
-        return 1
+        print("\nSome checks failed. Try: pip install -r requirements.txt")
+        print("See TROUBLESHOOTING.md.")
+    return 0 if all_ok else 1
 
 
 if __name__ == "__main__":
