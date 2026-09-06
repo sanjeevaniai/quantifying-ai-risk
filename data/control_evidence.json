@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "document": "control_evidence_register",
+  "note": "A committed input, not a generated artifact. This is the people-side record: what the control owners assert about whether each control ran. It is control evidence, and the library will refuse to let it update a system-behavior measure. Where a control is intended to keep a measure inside tolerance, covers_measure names it, so an attested control state and a measured system state can be compared without either updating the other.",
+  "generated_at": "2026-09-08T00:00:00+00:00",
+  "register_refreshed_at": "2026-09-08T00:00:00+00:00",
+  "controls": [
+    {
+      "control_id": "model_approval_before_deploy",
+      "description": "Model approved before deployment",
+      "owner": "ml_lead",
+      "state": "EVIDENCED",
+      "last_evidence": "2026-04-15",
+      "covers_measure": null
+    },
+    {
+      "control_id": "human_review_high_risk_denials",
+      "description": "Human review on high-risk denials",
+      "owner": "ops_manager",
+      "state": "EVIDENCED",
+      "last_evidence": "2026-09-08",
+      "covers_measure": null
+    },
+    {
+      "control_id": "quarterly_fairness_review",
+      "description": "Quarterly fairness review",
+      "owner": "risk_owner",
+      "state": "ATTESTED_ONLY",
+      "last_evidence": "2026-06-30",
+      "covers_measure": "fairness_parity_75"
+    },
+    {
+      "control_id": "incident_runbook_exercised",
+      "description": "Incident runbook exercised",
+      "owner": "sre_lead",
+      "state": "STALE",
+      "last_evidence": "2025-11-02",
+      "covers_measure": null
+    },
+    {
+      "control_id": "third_party_model_due_diligence",
+      "description": "Third-party model due diligence",
+      "owner": "procurement",
+      "state": "NO_EVIDENCE",
+      "last_evidence": null,
+      "covers_measure": null
+    },
+    {
+      "control_id": "training_data_lineage_recorded",
+      "description": "Training data lineage recorded",
+      "owner": "data_engineering_lead",
+      "state": "EVIDENCED",
+      "last_evidence": "2026-08-01",
+      "covers_measure": "drift_distance_50"
+    },
+    {
+      "control_id": "threshold_change_signoff",
+      "description": "Threshold change sign-off",
+      "owner": "risk_owner",
+      "state": "ATTESTED_ONLY",
+      "last_evidence": "2026-06-05",
+      "covers_measure": null
+    },
+    {
+      "control_id": "rollback_drill",
+      "description": "Rollback drill",
+      "owner": "sre_lead",
+      "state": "STALE",
+      "last_evidence": "2026-02-20",
+      "covers_measure": null
+    }
+  ]
+}
