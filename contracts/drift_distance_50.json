@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "measure_id": "drift_distance_50",
+  "construct": "input distribution stability against the training reference",
+  "estimand": "theta = P(a 50-decision window meets the drift-distance criterion)",
+  "evidence_type": "system_behavior",
+  "observable_fields": [
+    "input_features"
+  ],
+  "window": {
+    "length": 50,
+    "unit": "decisions"
+  },
+  "measurement_function": "mean over features of |window_mean - reference_mean| / reference_std, divided by scale",
+  "parameters": {
+    "scale": 1.5
+  },
+  "operator": "<=",
+  "threshold": 0.1,
+  "theta_threshold": 0.75,
+  "prior": {
+    "alpha": 2.0,
+    "beta": 8.0,
+    "mode": "illustrative"
+  },
+  "sufficiency": {
+    "min_observations": 8,
+    "max_age_days": 30
+  },
+  "owner": "ml_lead",
+  "limitations": [
+    "detects input drift only; concept drift needs labels and arrives later",
+    "depends on the reference distribution fixed at training time"
+  ]
+}

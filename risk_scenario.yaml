@@ -1,0 +1,108 @@
+# Exposure and monetary parameters for the risk model.
+#
+# mode: illustrative means none of these numbers is calibrated from incident
+# history. They are plausible placeholders so the pipeline produces something to
+# look at. Replace them with your own before reading any dollar figure.
+
+schema_version: "1.0"
+mode: illustrative
+reporting_period: "2026-09"
+reported_at: "2026-09-11T12:00:00+00:00"
+currency: USD
+
+# Exposure: how many chances to breach a criterion exist per month. Each
+# measure's window count is derived from this volume and the window length in
+# its contract, so window lengths are not repeated here.
+exposure:
+  monthly_decisions: 40000
+  control_instances_per_month: 8
+
+# Probability that one criterion breach becomes a loss-bearing event. Most
+# breaches are noticed and corrected, which is why the loss distribution has mass
+# at zero. Estimate these from your own breach and incident counts.
+escalation_probability:
+  performance_per_decision: 0.00001
+  data_quality_50:          0.0005
+  drift_distance_50:        0.002
+  fairness_parity_75:       0.001
+  security_authz_50:        0.0015
+  control_execution:        0.05
+
+# Cost of one loss-bearing event, lognormal. sigma is the tail width and decides
+# which measure dominates the tail, so it matters more than the median.
+consequence:
+  performance_per_decision: {median: 250000, sigma: 1.0}
+  data_quality_50:          {median: 300000, sigma: 1.0}
+  drift_distance_50:        {median: 800000, sigma: 0.8}
+  fairness_parity_75:       {median: 200000, sigma: 2.0}   # class-action shaped tail
+  security_authz_50:        {median: 600000, sigma: 1.0}
+  control_execution:        {median: 300000, sigma: 1.2}
+
+# Gaussian copula correlation applied to the theta draws. Validated on load:
+# square, symmetric, unit diagonal, entries in [-1, 1], positive definite.
+# source: declared means it is assumed, not estimated from incident history.
+dependence:
+  source: declared
+  order:
+    - performance_per_decision
+    - data_quality_50
+    - drift_distance_50
+    - fairness_parity_75
+    - security_authz_50
+    - control_execution
+  matrix:
+    - [1.00, 0.45, 0.55, 0.40, 0.20, 0.15]
+    - [0.45, 1.00, 0.60, 0.35, 0.20, 0.15]
+    - [0.55, 0.60, 1.00, 0.70, 0.25, 0.20]
+    - [0.40, 0.35, 0.70, 1.00, 0.20, 0.25]
+    - [0.20, 0.20, 0.25, 0.20, 1.00, 0.30]
+    - [0.15, 0.15, 0.20, 0.25, 0.30, 1.00]
+
+# State a measure is held at for the hold-one-healthy attribution: mean 0.95 on
+# a narrow interval.
+counterfactual:
+  healthy_state: {alpha: 95.0, beta: 5.0}
+
+simulation:
+  n_simulations: 50000     # at 10,000 the TCE moved ~19% across seeds
+  primary_seed: 42
+  stability_seeds: [42, 43, 44, 45, 46, 47, 48, 49]
+  var_level: 0.95
+
+# Counterfactual scenarios. Each one modifies the estimated posterior state and
+# re-runs the same model, to ask "what if the state were different". They are not
+# evidence, and their results are only comparable with each other.
+scenarios:
+  baseline:
+    description: "Nothing changes. The state estimated in Hour 2."
+    modification: none
+
+  drift_spike:
+    description: "The drift posterior collapses over two further windows."
+    modification: add_failing_windows
+    measure: drift_distance_50
+    n_windows: 2
+
+  fairness_degradation:
+    description: "Twelve further failing parity windows."
+    modification: add_failing_windows
+    measure: fairness_parity_75
+    n_windows: 12
+
+  monitoring_gap:
+    description: >
+      Telemetry stops for three weeks. The scoring job keeps reporting from
+      evidence that is now old, so this row is identical to baseline by
+      construction. The sufficiency check is what catches it, not the loss model.
+    modification: none
+    freezes_state: true
+
+  missing_documentation:
+    description: >
+      The control register is not refreshed, so control_execution falls outside
+      its freshness requirement, returns INSUFFICIENT_EVIDENCE and is excluded
+      from the loss sum. The reported loss falls because a measure stopped being
+      measurable, not because the system improved.
+    modification: stale_control_register
+    measure: control_execution
+    register_age_days: 120

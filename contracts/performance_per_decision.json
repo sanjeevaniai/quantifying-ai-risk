@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "measure_id": "performance_per_decision",
+  "construct": "task performance within operating limits",
+  "estimand": "theta = P(a single decision meets the performance criterion)",
+  "evidence_type": "system_behavior",
+  "observable_fields": [
+    "confidence",
+    "latency_ms",
+    "error"
+  ],
+  "window": {
+    "length": 1,
+    "unit": "decisions"
+  },
+  "measurement_function": "confidence >= min_confidence and latency_ms <= max_latency_ms and not error",
+  "parameters": {
+    "min_confidence": 0.7,
+    "max_latency_ms": 300
+  },
+  "operator": ">=",
+  "threshold": 1.0,
+  "theta_threshold": 0.75,
+  "prior": {
+    "alpha": 2.0,
+    "beta": 8.0,
+    "mode": "illustrative"
+  },
+  "sufficiency": {
+    "min_observations": 8,
+    "max_age_days": 30
+  },
+  "owner": "ml_lead",
+  "limitations": [
+    "confidence is the model's own estimate, not an accuracy guarantee",
+    "correctness is excluded because labels arrive after the decision"
+  ]
+}

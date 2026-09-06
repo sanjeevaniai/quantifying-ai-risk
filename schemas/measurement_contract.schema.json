@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "measurement_contract.schema.json",
+  "title": "Measurement contract",
+  "description": "The declared definition of one measure.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "measure_id",
+    "construct",
+    "estimand",
+    "evidence_type",
+    "observable_fields",
+    "window",
+    "measurement_function",
+    "operator",
+    "threshold",
+    "theta_threshold",
+    "prior",
+    "sufficiency",
+    "owner",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "measure_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "construct": {
+      "type": "string",
+      "minLength": 1
+    },
+    "estimand": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the number estimates, stated precisely."
+    },
+    "evidence_type": {
+      "enum": [
+        "system_behavior",
+        "control"
+      ],
+      "description": "Which evidence may update this measure."
+    },
+    "observable_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "length",
+        "unit"
+      ],
+      "properties": {
+        "length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "measurement_function": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Values the measurement function reads. Keeps the contract the single source."
+    },
+    "operator": {
+      "enum": [
+        ">=",
+        "<=",
+        "=="
+      ]
+    },
+    "threshold": {
+      "type": "number",
+      "description": "What makes one window pass."
+    },
+    "theta_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Share of windows that must pass; the band boundary."
+    },
+    "prior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alpha",
+        "beta",
+        "mode"
+      ],
+      "properties": {
+        "alpha": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "beta": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "mode": {
+          "enum": [
+            "illustrative",
+            "calibrated"
+          ]
+        }
+      }
+    },
+    "sufficiency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_observations",
+        "max_age_days"
+      ],
+      "properties": {
+        "min_observations": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_age_days": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Accountable role, not a named individual."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    }
+  }
+}

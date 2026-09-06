@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "control_state.schema.json",
+  "title": "Control state register",
+  "description": "One row per control instance, plus counts and divergences. No estimates.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "document",
+    "generated_at",
+    "reported_at",
+    "controls",
+    "counts",
+    "divergences"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "document": {
+      "const": "control_state"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "reported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "register_refreshed_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "controls": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "control_id",
+          "description",
+          "owner",
+          "state",
+          "last_evidence",
+          "covers_measure"
+        ],
+        "properties": {
+          "control_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Accountable role."
+          },
+          "state": {
+            "enum": [
+              "EVIDENCED",
+              "ATTESTED_ONLY",
+              "STALE",
+              "NO_EVIDENCE"
+            ]
+          },
+          "last_evidence": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "covers_measure": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "divergences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "control_id",
+          "control_state",
+          "measure_id",
+          "measured_band",
+          "findings"
+        ],
+        "properties": {
+          "control_id": {
+            "type": "string"
+          },
+          "control_state": {
+            "type": "string"
+          },
+          "measure_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "measured_band": {
+            "enum": [
+              "STRONG",
+              "ADEQUATE",
+              "WEAK",
+              "INSUFFICIENT_EVIDENCE"
+            ]
+          },
+          "findings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "finding",
+                "owner"
+              ],
+              "properties": {
+                "finding": {
+                  "type": "string"
+                },
+                "owner": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

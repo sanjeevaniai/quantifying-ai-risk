@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "measure_id": "fairness_parity_75",
+  "construct": "group outcome disparity",
+  "estimand": "theta = P(a 75-decision window meets the parity criterion)",
+  "evidence_type": "system_behavior",
+  "observable_fields": [
+    "decision",
+    "group"
+  ],
+  "window": {
+    "length": 75,
+    "unit": "decisions"
+  },
+  "measurement_function": "min group approval rate / reference group rate, rates Laplace-smoothed",
+  "parameters": {
+    "reference_group": "A",
+    "groups": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "smoothing": 1
+  },
+  "operator": ">=",
+  "threshold": 0.8,
+  "theta_threshold": 0.9,
+  "prior": {
+    "alpha": 2.0,
+    "beta": 8.0,
+    "mode": "illustrative"
+  },
+  "sufficiency": {
+    "min_observations": 8,
+    "max_age_days": 30
+  },
+  "owner": "risk_owner",
+  "limitations": [
+    "small subgroup counts make the ratio unstable, which the smoothing only partly offsets",
+    "a disparity is a signal to investigate, not evidence of cause",
+    "the four-fifths rule is a screening heuristic from employment selection"
+  ]
+}

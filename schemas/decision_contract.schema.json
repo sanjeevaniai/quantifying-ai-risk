@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "decision_contract.schema.json",
+  "title": "Decision contracts",
+  "description": "Per-measure decisions and the exit code derived from them.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "document",
+    "generated_at",
+    "reporting_period",
+    "scenario_mode",
+    "contracts",
+    "gate"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "document": {
+      "const": "decision_contracts"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reporting_period": {
+      "type": "string"
+    },
+    "scenario_mode": {
+      "enum": [
+        "illustrative",
+        "calibrated"
+      ]
+    },
+    "contracts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "measure_id",
+          "estimand",
+          "evidence_type",
+          "posterior_mean",
+          "credible_interval",
+          "ci_level",
+          "threshold_in_force",
+          "band",
+          "decision",
+          "reason",
+          "observations",
+          "owner",
+          "model_id",
+          "model_version",
+          "policy_version",
+          "timestamp"
+        ],
+        "properties": {
+          "measure_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "estimand": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_type": {
+            "enum": [
+              "system_behavior",
+              "control"
+            ]
+          },
+          "posterior_mean": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "credible_interval": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "ci_level": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "exclusiveMaximum": 1
+          },
+          "threshold_in_force": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "criterion",
+              "theta_threshold"
+            ],
+            "properties": {
+              "criterion": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "operator",
+                  "value"
+                ],
+                "properties": {
+                  "operator": {
+                    "enum": [
+                      ">=",
+                      "<=",
+                      "=="
+                    ]
+                  },
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              },
+              "theta_threshold": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          },
+          "band": {
+            "enum": [
+              "STRONG",
+              "ADEQUATE",
+              "WEAK",
+              "INSUFFICIENT_EVIDENCE"
+            ]
+          },
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REVIEW",
+              "BLOCK",
+              "HOLD"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "owner": {
+            "type": "string",
+            "description": "Accountable role."
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "model_version": {
+            "type": "string"
+          },
+          "policy_version": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pass",
+        "blocking",
+        "review",
+        "exit_code",
+        "derivation"
+      ],
+      "properties": {
+        "pass": {
+          "type": "boolean"
+        },
+        "blocking": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "review": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "exit_code": {
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "derivation": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

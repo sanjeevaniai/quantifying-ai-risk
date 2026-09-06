@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "measure_id": "data_quality_50",
+  "construct": "inputs within the intended operating envelope",
+  "estimand": "theta = P(a 50-decision window meets the data-quality criterion)",
+  "evidence_type": "system_behavior",
+  "observable_fields": [
+    "dq_null_ct",
+    "dq_range_viol",
+    "dq_schema_ok"
+  ],
+  "window": {
+    "length": 50,
+    "unit": "decisions"
+  },
+  "measurement_function": "share of records with no nulls, no range violations and a conforming schema",
+  "parameters": {},
+  "operator": ">=",
+  "threshold": 0.98,
+  "theta_threshold": 0.75,
+  "prior": {
+    "alpha": 2.0,
+    "beta": 8.0,
+    "mode": "illustrative"
+  },
+  "sufficiency": {
+    "min_observations": 8,
+    "max_age_days": 30
+  },
+  "owner": "data_engineering_lead",
+  "limitations": [
+    "checks conformance, not correctness of the values"
+  ]
+}

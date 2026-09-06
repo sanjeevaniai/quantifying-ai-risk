@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "posterior_state.schema.json",
+  "title": "Posterior state",
+  "description": "One posterior per measure. Written by 02_bayesian_scoring.ipynb.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "document",
+    "model_id",
+    "model_version",
+    "n_records",
+    "reported_at",
+    "measures"
+  ],
+  "$defs": {
+    "measure_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "measure_id",
+        "estimand",
+        "evidence_type",
+        "prior",
+        "posterior",
+        "observations",
+        "theta_threshold",
+        "band",
+        "sufficiency",
+        "mean",
+        "credible_interval",
+        "ci_level"
+      ],
+      "properties": {
+        "measure_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "estimand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_type": {
+          "enum": [
+            "system_behavior",
+            "control"
+          ]
+        },
+        "prior": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "alpha",
+            "beta",
+            "mode"
+          ],
+          "properties": {
+            "alpha": {
+              "type": "number"
+            },
+            "beta": {
+              "type": "number"
+            },
+            "mode": {
+              "enum": [
+                "illustrative",
+                "calibrated"
+              ]
+            }
+          }
+        },
+        "posterior": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "alpha",
+            "beta"
+          ],
+          "properties": {
+            "alpha": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "beta": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "observations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "n",
+            "passed",
+            "failed",
+            "unit"
+          ],
+          "properties": {
+            "n": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "passed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unit": {
+              "type": "string"
+            }
+          }
+        },
+        "theta_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "band": {
+          "enum": [
+            "STRONG",
+            "ADEQUATE",
+            "WEAK",
+            "INSUFFICIENT_EVIDENCE"
+          ]
+        },
+        "sufficiency": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sufficient",
+            "n_observations",
+            "min_observations",
+            "evidence_age_days",
+            "max_age_days",
+            "reason"
+          ],
+          "properties": {
+            "sufficient": {
+              "type": "boolean"
+            },
+            "n_observations": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "min_observations": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "evidence_age_days": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "max_age_days": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        },
+        "mean": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "credible_interval": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "ci_level": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        }
+      }
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "document": {
+      "const": "posterior_state"
+    },
+    "model_id": {
+      "type": "string"
+    },
+    "model_version": {
+      "type": "string"
+    },
+    "n_records": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "prior_sensitivity": {
+      "type": "object"
+    },
+    "measures": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/measure_state"
+      }
+    }
+  }
+}

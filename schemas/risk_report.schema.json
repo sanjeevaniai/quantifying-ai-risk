@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "risk_report.schema.json",
+  "title": "Risk report",
+  "description": "Simulation results and the assumptions they were produced under.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "document",
+    "generated_at",
+    "reporting_period",
+    "currency",
+    "assumptions",
+    "simulation",
+    "results",
+    "tail_attribution",
+    "seed_stability",
+    "counterfactual_scenarios",
+    "interpretation_floor"
+  ],
+  "$defs": {
+    "money_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "unit_interval": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "document": {
+      "const": "risk_report"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reporting_period": {
+      "type": "string"
+    },
+    "currency": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3
+    },
+    "assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "monthly_decisions",
+        "control_instances_per_month",
+        "escalation_probability",
+        "consequence",
+        "dependence_source",
+        "dependence_order",
+        "dependence_matrix",
+        "healthy_state"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "illustrative",
+            "calibrated"
+          ]
+        },
+        "monthly_decisions": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "control_instances_per_month": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "escalation_probability": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/unit_interval"
+          }
+        },
+        "consequence": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "median",
+              "sigma"
+            ],
+            "properties": {
+              "median": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "sigma": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          }
+        },
+        "dependence_source": {
+          "enum": [
+            "declared",
+            "estimated"
+          ]
+        },
+        "dependence_order": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "minItems": 1
+        },
+        "dependence_matrix": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1
+            }
+          }
+        },
+        "healthy_state": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "simulation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "n_simulations",
+        "primary_seed",
+        "var_level",
+        "measures_included",
+        "measures_excluded"
+      ],
+      "properties": {
+        "n_simulations": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "primary_seed": {
+          "type": "integer"
+        },
+        "var_level": {
+          "$ref": "#/$defs/unit_interval"
+        },
+        "measures_included": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "measures_excluded": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_loss",
+        "median_loss",
+        "var",
+        "tce",
+        "zero_loss_share",
+        "expected_by_measure"
+      ],
+      "properties": {
+        "expected_loss": {
+          "type": "number",
+          "minimum": 0
+        },
+        "median_loss": {
+          "type": "number",
+          "minimum": 0
+        },
+        "var": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tce": {
+          "type": "number",
+          "minimum": 0
+        },
+        "zero_loss_share": {
+          "$ref": "#/$defs/unit_interval"
+        },
+        "expected_by_measure": {
+          "$ref": "#/$defs/money_map"
+        }
+      }
+    },
+    "tail_attribution": {
+      "type": "object"
+    },
+    "seed_stability": {
+      "type": "object"
+    },
+    "counterfactual_scenarios": {
+      "type": "object",
+      "description": "Scenarios that modify posterior state directly. Not evidence."
+    },
+    "interpretation_floor": {
+      "type": "string"
+    }
+  }
+}

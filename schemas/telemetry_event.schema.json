@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "telemetry_event.schema.json",
+  "title": "Telemetry event",
+  "description": "One decision record, written when the model decides.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id",
+    "captured_at",
+    "model_id",
+    "model_version",
+    "schema_version",
+    "policy_version",
+    "decision",
+    "confidence",
+    "latency_ms",
+    "error",
+    "dq_null_ct",
+    "dq_range_viol",
+    "dq_schema_ok",
+    "caller_id",
+    "auth_result",
+    "policy_violation",
+    "input_features",
+    "group",
+    "checksum"
+  ],
+  "properties": {
+    "decision_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "enum": [
+        "APPROVED",
+        "DENIED"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "latency_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "error": {
+      "type": "boolean"
+    },
+    "dq_null_ct": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "dq_range_viol": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "dq_schema_ok": {
+      "type": "boolean"
+    },
+    "caller_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "auth_result": {
+      "type": "boolean"
+    },
+    "policy_violation": {
+      "type": "boolean"
+    },
+    "input_features": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1
+    },
+    "group": {
+      "type": "string",
+      "minLength": 1
+    },
+    "checksum": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]+$",
+      "description": "SHA-256 over the other fields. Detects corruption; not a signature."
+    }
+  }
+}

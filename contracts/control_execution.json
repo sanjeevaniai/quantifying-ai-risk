@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "measure_id": "control_execution",
+  "construct": "required controls executed and evidenced within their interval",
+  "estimand": "theta = P(a required control is evidenced within its declared interval)",
+  "evidence_type": "control",
+  "observable_fields": [
+    "control_id",
+    "state",
+    "last_evidence"
+  ],
+  "window": {
+    "length": 1,
+    "unit": "control_instances"
+  },
+  "measurement_function": "control state == EVIDENCED",
+  "parameters": {},
+  "operator": "==",
+  "threshold": 1.0,
+  "theta_threshold": 0.75,
+  "prior": {
+    "alpha": 2.0,
+    "beta": 8.0,
+    "mode": "illustrative"
+  },
+  "sufficiency": {
+    "min_observations": 5,
+    "max_age_days": 30
+  },
+  "owner": "compliance_owner",
+  "limitations": [
+    "execution is not effectiveness: a control can run and change nothing",
+    "evidence comes from people rather than the running system"
+  ]
+}
