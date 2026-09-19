@@ -14,13 +14,18 @@ python -m ipykernel install --user --name qair --display-name "Quantifying AI Ri
 and pick that kernel from the notebook's kernel menu.
 
 **`FileNotFoundError: No telemetry at data/telemetry.jsonl`.**
-Notebook 2 reads what Notebook 1 wrote. Run Notebook 1 first; it takes about a
-minute. The same applies to Notebook 3 and `data/posterior_state.json`.
+Notebooks 2 and 3 regenerate the stream when it is missing, so this should not
+reach you from a notebook. From your own code `read_jsonl` still raises it: run
+Notebook 1, which takes about a minute, or call `generate_stream` and
+`write_jsonl` yourself.
 
-**Colab: Notebook 2 cannot find the file Notebook 1 wrote.**
-Each Colab notebook gets its own machine. Run all three in the same session, or
-download `data/telemetry.jsonl` and upload it into the next session at the same
-path. After a runtime reset, re-run the first cell.
+**Colab: Notebook 2 or 3 cannot find the file the previous notebook wrote.**
+Each Colab notebook gets its own machine, so this is expected, and Notebooks 2
+and 3 handle it: each regenerates the telemetry it needs, and Notebook 3 also
+writes `data/posterior_state.json` from the posteriors it rebuilds. The seed is
+fixed, so the regenerated telemetry is byte-identical to Notebook 1's and the
+numbers match. A notebook that regenerates says so in one line. After a runtime
+reset, re-run the first cell.
 
 **`RuntimeError: Run this notebook from inside a clone of the repository.`**
 The first cell looks upward for a directory containing both `contracts/` and

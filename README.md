@@ -26,8 +26,10 @@ Python 3.10 or newer. There is no build step; the notebooks put the repository
 root and `src/` on `sys.path` themselves.
 
 On Colab, open a notebook with a badge below and run the first cell — it clones
-the repository and installs the requirements. Run all three in the same session,
-since each reads what the previous one wrote.
+the repository and installs the requirements. Each Colab notebook gets its own
+machine, so Notebooks 2 and 3 regenerate any input they are missing from the
+same seeded generator. Running all three in the same session is the quickest
+path, not a requirement: any one of them can be opened on its own.
 
 | | Notebook | Colab |
 |---|---|---|

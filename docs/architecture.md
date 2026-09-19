@@ -21,13 +21,15 @@ anything about the worked example. `qair` is generic.
 ## The notebooks
 
 Each reads what the previous one wrote, so any stage can be re-run alone and a
-stage can be replaced as long as it reads and writes the same schema.
+stage can be replaced as long as it reads and writes the same schema. Notebooks 2
+and 3 regenerate a missing input rather than refusing, so a stage can also be run
+without the ones before it.
 
 | Notebook | Reads | Writes |
 |---|---|---|
 | `01_telemetry` | `contracts/`, `data/reference_distribution.json` | `data/telemetry.jsonl` |
 | `02_bayesian_scoring` | `data/telemetry.jsonl`, `contracts/`, `data/control_evidence.json` | `data/posterior_state.json`, `data/control_state.json` |
-| `03_monte_carlo` | `data/posterior_state.json`, `risk_scenario.yaml` | `data/risk_report.json`, `data/decision_contracts.json` |
+| `03_monte_carlo` | `data/telemetry.jsonl`, `contracts/`, `data/control_evidence.json`, `risk_scenario.yaml` | `data/risk_report.json`, `data/decision_contracts.json`, `data/posterior_state.json` when missing |
 
 ## Where values are declared
 

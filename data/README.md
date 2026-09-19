@@ -19,14 +19,16 @@ validated against a schema in [`../schemas/`](../schemas) before it is written.
 
 | File | Written by | Read by |
 |---|---|---|
-| `telemetry.jsonl` | `01_telemetry` | Notebooks 2 and 3 |
-| `reference_distribution.generated.json` | `01_telemetry` | Notebooks 2 and 3 |
-| `posterior_state.json` | `02_bayesian_scoring` | Notebook 3 |
+| `telemetry.jsonl` | `01_telemetry`, or 2 or 3 when missing | Notebooks 2 and 3 |
+| `reference_distribution.generated.json` | `01_telemetry`, or 2 or 3 when missing | Notebooks 2 and 3 |
+| `posterior_state.json` | `02_bayesian_scoring`, or 3 when missing | Notebook 3 |
 | `control_state.json` | `02_bayesian_scoring` | — |
 | `risk_report.json` | `03_monte_carlo` | — |
 | `decision_contracts.json` | `03_monte_carlo` | a pipeline |
 
-Run the notebooks in order; each reports which input is missing if you do not.
+Running the notebooks in order is the quickest path, not a requirement. Notebooks
+2 and 3 regenerate any of the above they are missing, from the same seeded
+generator and the same observations, so each can be run on its own.
 
 Notebooks 2 and 3 use the generated reference distribution when it exists, so they
 measure drift against the same reference the telemetry came from, and fall back to
