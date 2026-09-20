@@ -4,6 +4,7 @@ Corrections are welcome, particularly where the implementation is wrong.
 
 ```bash
 pip install -r requirements.txt
+nbstripout --install --attributes .gitattributes    # once per clone
 pytest
 ```
 
@@ -17,7 +18,10 @@ A few conventions:
   code reads it.
 - When an assumption changes, update the contract or the scenario file rather
   than only the code that uses it.
-- Notebooks are committed without outputs. CI checks this.
+- Notebooks are committed without outputs. The nbstripout filter above strips
+  them as you stage, so a local re-run never reaches a commit; the filter lives
+  in `.git/config` and cannot be committed, which is why each clone installs it.
+  CI fails the build if one slips through.
 - `tests/test_reproducibility.py` holds the values the pipeline should reproduce
   from the committed fixture. If a change moves one legitimately, update it there
   and say why in the pull request.

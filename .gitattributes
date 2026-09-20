@@ -1,0 +1,13 @@
+# Notebooks are committed without outputs, and CI fails the build when one is
+# not. nbstripout strips them on the way into the index, so a local re-run never
+# reaches a commit.
+#
+# The filter itself is defined in .git/config, which cannot be committed, so
+# each clone installs it once:
+#
+#     nbstripout --install --attributes .gitattributes
+#
+# Until then these lines are inert: git ignores a filter it has no definition
+# for, and the CI gate stays the backstop.
+*.ipynb filter=nbstripout
+*.ipynb diff=ipynb

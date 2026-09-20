@@ -46,6 +46,18 @@ compared against `reported_at` in `risk_scenario.yaml`.
 locally. Pass `n=` to `simulate` to iterate faster, but do not quote a tail
 statistic from a short run.
 
+**CI says my notebooks carry committed outputs.**
+Running a notebook writes its outputs back into the `.ipynb`, and CI fails the
+build when one is committed that way. Install the filter once in your clone and
+git strips them as you stage:
+
+```bash
+nbstripout --install --attributes .gitattributes
+```
+
+To clean up notebooks you already committed, run `nbstripout notebooks/*.ipynb`
+and commit the result. Cell sources are untouched.
+
 **My numbers differ from the README.**
 Tail statistics move about 10% across seeds, so expected loss, VaR and TCE will
 not match exactly. Posteriors, bands and the exit code should. See the

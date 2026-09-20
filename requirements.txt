@@ -31,3 +31,7 @@ ipykernel>=6.27,<7.0
 
 # Tests
 pytest>=7.4,<9.0
+
+# Keeps notebook outputs out of commits. Install the filter once per clone:
+# `nbstripout --install --attributes .gitattributes`. See .gitattributes.
+nbstripout>=0.7,<1.0

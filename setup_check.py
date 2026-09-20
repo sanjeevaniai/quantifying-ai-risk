@@ -9,6 +9,7 @@ Exit code 0 means ready. It does not train a model or run a simulation.
 from __future__ import annotations
 
 import importlib
+import subprocess
 import sys
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -100,6 +101,29 @@ def check_library(root: Path) -> bool:
     return ok
 
 
+def check_notebook_filter(root: Path) -> None:
+    """Report whether this clone strips notebook outputs on commit.
+
+    Advisory only: it never changes the exit code. The nbstripout filter is
+    defined in .git/config, which cannot be committed, so a fresh clone and a CI
+    checkout both start without it. CI's own gate is the backstop.
+    """
+    if not (root / ".git").exists():
+        return
+    try:
+        found = subprocess.run(["git", "config", "--get", "filter.nbstripout.clean"],
+                               cwd=root, capture_output=True, text=True).returncode == 0
+    except OSError:
+        return
+
+    print("\nNotebooks:")
+    if found:
+        print("  [OK]   notebook outputs are stripped on commit")
+    else:
+        print("  [NOTE] this clone does not strip notebook outputs on commit")
+        print("          nbstripout --install --attributes .gitattributes")
+
+
 def main() -> int:
     root = Path(__file__).resolve().parent
     print("Quantifying AI Risk — environment check\n")
@@ -113,6 +137,8 @@ def main() -> int:
     print("\nLibrary:")
     library_ok = check_library(root) if packages_ok and repo_ok else line(
         False, "skipped, fix the failures above first")
+
+    check_notebook_filter(root)
 
     all_ok = python_ok and packages_ok and repo_ok and library_ok
     if all_ok:
